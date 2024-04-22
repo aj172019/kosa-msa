@@ -1,0 +1,3 @@
+[submodule "kosa-msa"]
+	path = kosa-msa
+	url = https://github.com/aj172019/kosa-msa.git
