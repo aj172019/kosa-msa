@@ -1,9 +1,0 @@
-@startuml test
-!include  https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
-
-Person(personAlias, "Person", "A person")
-Container(containerAlias, "Label", "Technolohy", "A container")
-System(systemAlias, "System", "Optional Description")
-
-Rel(personAlias, containerAlias, "Label", "Optional Technology")
-@enduml
