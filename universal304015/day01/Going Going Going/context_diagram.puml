@@ -1,0 +1,83 @@
+@startuml OnlineAuctionSystemArchitecture
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_TOP_DOWN()
+
+Person(bidder, "Bidder", "경매 참가자: 실시간으로 경매에 참여")
+Person(auctioneer, "Auctioneer", "경매인: 경매를 운영하고 진행")
+Person(admin, "Administrator", "시스템 관리자: 경매 시스템 및 사용자 관리")
+
+    System_Boundary(fe_system, "프론트엔드 시스템") {
+        Container(web_app, "Public Web Application", "React", "경매 참가자 및 경매인을 위한 사용자 인터페이스 제공")
+        Container(admin_app, "Admin Web Application", "React", "관리자가 경매 및 사용자를 관리할 수 있는 웹 애플리케이션")
+    }
+
+    System_Boundary(NetworkLayer, "Network Layer") {
+        Container(api_gateway, "API Gateway", "Amazon API Gateway", "API 요청을 처리하고 라우팅")
+    }
+
+    System_Boundary(backend_system, "백엔드 시스템") {
+        Container(auction_service, "경매", "Spring Boot", "경매 로직 처리")
+            Container(bid_management, "입찰", "Spring Boot", "입찰 관리 및 처리")
+            Container(user_management, "사용자", "Spring Boot", "사용자 및 관리자 계정 관리")
+            Container(payment_service, "결제", "Spring Boot", "결제 처리 서비스")
+<<<<<<< HEAD
+            Container(message, "메시지", "Spring Boot Application", "이메일 및 SMS 메시지 전송")
+=======
+            Container(message, "메시지", "Spring Boot", "이메일 및 SMS 메시지 전송")
+>>>>>>> 4a51ae6d8802c4b7c42b2756617084ec7fd2f67c
+            Container(video_streaming, "Video Streaming Service", "AWS Elemental MediaLive", "경매 비디오 스트리밍")
+            Container(cloudFront, "AWS CloudFront", "CDN", "콘텐츠 전송 및 최적화")
+    }
+
+    System_Boundary(DatabaseLayer, "Database Layer") {
+        ContainerDb(auction_db, "Auction Database", "Mysql", "경매 데이터 및 관리자 데이터 저장")
+        ContainerDb(bid_db, "Bid Database", "Mysql", "입찰 데이터 저장")
+        ContainerDb(payment_db, "Payment Database", "Mysql", "결제 데이터 저장")
+        ContainerDb(user_db, "User Database", "Mysql", "사용자 데이터 저장")
+        ContainerDb(payment_db, "Payment Database", "Mysql", "결제 데이터 저장")
+        ContainerDb(message_db, "Message Database", "Mysql", "메시지 데이터 저장")
+        ContainerDb(file_storage, "File Storage", "AWS S3", "경매 비디오 및 이미지 저장")
+    }
+
+
+    Rel(bidder, web_app, "Uses")
+    Rel(auctioneer, web_app, "Uses")
+    Rel(admin, admin_app, "Uses")
+<<<<<<< HEAD
+
+=======
+>>>>>>> 4a51ae6d8802c4b7c42b2756617084ec7fd2f67c
+    Rel(web_app, api_gateway, "HTTPS requests")
+    Rel(admin_app, api_gateway, "HTTPS requests")
+    Rel(api_gateway, auction_service, "Routes requests")
+    Rel(api_gateway, bid_management, "Routes requests")
+    Rel(api_gateway, video_streaming, "Routes requests")
+    Rel(video_streaming, cloudFront, "Streams to")
+    Rel(cloudFront, file_storage, "Caches content from")
+    Rel(api_gateway, payment_service, "Routes requests")
+    Rel(api_gateway, user_management, "Routes requests")
+    Rel(api_gateway, message, "Routes requests")
+
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4a51ae6d8802c4b7c42b2756617084ec7fd2f67c
+    Rel(auction_service, auction_db, "Reads/Writes")
+    Rel(bid_management, bid_db, "Reads/Writes")
+    Rel(payment_service, payment_db, "Reads/Writes")
+    Rel(user_management, user_db, "Reads/Writes")
+    Rel(message, message_db, "Reads/Writes")
+
+
+    Rel(auction_service, video_streaming, "Coordinates")
+    Rel(bid_management, payment_service, "Integrates")
+
+
+System_Ext(payment_gateway, "Payment Gateway", "외부 결제 서비스와 통합")
+System_Ext(ExternalMessaging, "External Messaging Service", "외부 메시징 서비스")
+
+Rel(payment_service, payment_gateway, "API calls")
+Rel(message, ExternalMessaging, "API calls")
+
+@enduml

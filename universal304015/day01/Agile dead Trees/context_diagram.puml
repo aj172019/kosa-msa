@@ -1,0 +1,85 @@
+@startuml Agile dead Trees
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_TOP_DOWN()
+
+Person(authors, "Authors", "저자들: 챕터를 제출하고 검토받음")
+Person(employee, "Employee", "출판사 직원: 챕터를 검토하고 피드백 제공, 스토어 관리")
+Person(customers, "Customers", "고객들: 도서를 온라인으로 구매")
+
+System_Boundary(fe_system, "프론트엔드 시스템") {
+    Container(cms_ui, "CMS UI", "Web Application", "저자와 편집자를 위한 웹 인터페이스")
+    Container(store_admin_ui, "스토어 관리자 UI", "Web Application", "관리자가 상품을 관리할 수 있는 웹 인터페이스")
+    Container(store_ui, "스토어 UI", "Web Application", "고객이 도서를 검색하고 구매할 수 있는 웹 인터페이스")
+}
+
+System_Boundary(NetworkLayer, "Network Layer") {
+    Container(api_gateway, "API Gateway", "Amazon API Gateway", "인증, 인가, SSL, 로드 밸런싱 및 API 라우팅")
+}
+
+System_Boundary(bes, "백엔드 마이크로서비스") {
+    Container(publish, "출판", "Spring Boot", "챕터 제출 및 관리")
+    Container(editor, "편집", "Spring Boot", "챕터 검토 및 피드백 관리")
+    Container(order, "주문", "Spring Boot", "도서 주문 처리")
+    Container(user, "사용자", "Spring Boot", "고객 계정 관리")
+    Container(display, "전시", "Spring Boot", "제품 전시 관리")
+    Container(product, "상품", "Spring Boot", "전자책 및 챕터, 종이책 관리")
+    Container(delivery, "배송", "Spring Boot", "도서 배송 처리")
+    Container(payment, "결제", "Spring Boot", "도서 결제 처리")
+    Container(message, "메시지", "Spring Boot", "이메일 및 SMS 메시지 전송")
+    Container(lambda_process, "Document Processing Lambda", "AWS Lambda", "문서를 이미지로 변환하고 S3에 저장")
+}
+
+System_Boundary(database, "Database") {
+    ContainerDb(publish_db, "Publish DB", "Couchbase", "출판 데이터 저장")
+    ContainerDb(editor_db, "Editor DB", "MySQL", "편집 데이터 저장")
+    ContainerDb(order_db, "Order DB", "MySQL", "주문 데이터 저장")
+    ContainerDb(delivery_db, "Delivery DB", "MySQL", "배송 정보 저장")
+    ContainerDb(payment_db, "Payment DB", "MySQL", "결제 정보 저장")
+    ContainerDb(user_db, "User DB", "MySQL", "사용자 정보 저장")
+    ContainerDb(product_db, "Product DB", "MySQL", "상품 정보 저장")
+    ContainerDb(display_db, "Display DB", "MySQL", "전시 데이터 저장")
+    ContainerDb(message_db, "Message DB", "MySQL", "메시지 템플릿 및 이력 저장")
+    ContainerDb(file_storage, "File Storage", "Amazon S3", "전자책 및 챕터 파일 저장")
+}
+
+System_Ext(ThirdPartyLogistics, "3PL Provider", "제3자 물류 제공자")
+System_Ext(PaymentGateway, "Payment Gateway", "결제 대행 서비스")
+System_Ext(ExternalMessaging, "External Messaging Service", "외부 메시징 서비스")
+
+Rel(authors, cms_ui, "Uses")
+Rel(employee, cms_ui, "Uses")
+Rel(employee, store_admin_ui, "Uses")
+Rel(customers, store_ui, "Uses")
+
+Rel(cms_ui, api_gateway, "HTTP requests")
+Rel(store_admin_ui, api_gateway, "HTTP requests")
+Rel(store_ui, api_gateway, "HTTP requests")
+
+Rel(api_gateway, publish, "Routes requests")
+Rel(api_gateway, editor, "Routes requests")
+Rel(api_gateway, order, "Routes requests")
+Rel(api_gateway, delivery, "Routes requests")
+Rel(api_gateway, payment, "Routes requests")
+Rel(api_gateway, user, "Routes requests")
+Rel(api_gateway, product, "Routes requests")
+Rel(api_gateway, display, "Routes requests")
+Rel(api_gateway, message, "Routes requests")
+Rel(api_gateway, lambda_process, "trigger")
+
+Rel(publish, publish_db, "Reads/Writes")
+Rel(editor, editor_db, "Reads/Writes")
+Rel(order, order_db, "Reads/Writes")
+Rel(delivery, delivery_db, "Reads/Writes")
+Rel(payment, payment_db, "Reads/Writes")
+Rel(user, user_db, "Reads/Writes")
+Rel(product, product_db, "Reads/Writes")
+Rel(display, display_db, "Reads/Writes")
+Rel(message, message_db, "Reads/Writes")
+Rel(lambda_process, file_storage, "File writes")
+Rel(lambda_process, publish_db, "Reads")
+
+Rel(delivery, ThirdPartyLogistics, "API calls")
+Rel(payment, PaymentGateway, "API calls")
+Rel(message, ExternalMessaging, "API calls")
+@enduml
